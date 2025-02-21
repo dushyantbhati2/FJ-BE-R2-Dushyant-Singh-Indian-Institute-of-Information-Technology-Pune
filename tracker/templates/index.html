@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About</title>
+<link rel="stylesheet" href="{% static 'css/test.css' %}" />
+</head>
+<body>
+<section class="hero">
+  <div class="heading">
+      <h1>About Us</h1>
+  </div>
+  <div class="container">
+      <div class="hero-content">
+          <h2>Welcome to Agrow</h2>
+          Agrow believe in the power of collaboration and knowledge-sharing, aimed to to empower farmers with cutting-edge 
+          technologies and data-driven insights, enabling them to make informed decisions and optimize their operations. By
+           leveraging the latest advancements in artificial intelligence, IoT, and remote sensing, we aim to enhance productivity,
+          reduce environmental impact, and ensure food security for future generations.
+          <button class="cta-button">Learn More</button>
+      </div>
+      <div class="hero-image">
+          <img src="{% static 'img/aboutus.jpg'%}" alt="">
+      </div>
+  </div>
+</section>
+</body>
+</html> 
