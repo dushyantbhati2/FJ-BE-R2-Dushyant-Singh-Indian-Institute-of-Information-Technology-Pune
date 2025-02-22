@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+  <title>FinTrack Dashboard</title>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside>
+      <div class="sidebar-title">FinTrack</div>
+      <nav>
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Transactions</a>
+        <a href="#">Reports</a>
+        <a href="#">Settings</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Header -->
+      <header>
+        <h2>Dashboard</h2>
+        <div class="header-icons">
+          <!-- Using simple Unicode icons as placeholders -->
+          <button title="Notifications">🔔</button>
+          <button title="User">👤</button>
+        </div>
+      </header>
+
+      <div style="padding: 20px;">
+        <!-- Financial Overview -->
+        <div class="grid mb-20">
+          <!-- Total Balance Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Total Balance</div>
+              <!-- Dollar icon placeholder -->
+              <div>💲</div>
+            </div>
+            <div class="card-content">
+              <div class="balance-amount">$12,345.67</div>
+              <div class="change-text">+20.1% from last month</div>
+            </div>
+          </div>
+          <!-- Total Income Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Total Income</div>
+              <div>💲</div>
+            </div>
+            <div class="card-content">
+              <div class="balance-amount">$8,765.43</div>
+              <div class="change-text">+10.5% from last month</div>
+            </div>
+          </div>
+          <!-- Total Expenses Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Total Expenses</div>
+              <div>💲</div>
+            </div>
+            <div class="card-content">
+              <div class="balance-amount">$3,456.78</div>
+              <div class="change-text">-5.2% from last month</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Card -->
+        {% comment %} <div class="card mb-20">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Transactions</div>
+              <div class="card-description">Add, edit, or delete your transactions here.</div>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="tabs">
+              <!-- Radio buttons for tabs -->
+              <input type="radio" name="tabs" id="tab-add" checked>
+              <label for="tab-add">Add Transaction</label>
+              <input type="radio" name="tabs" id="tab-recent">
+              <label for="tab-recent">Recent Transactions</label>
+              
+              <!-- Tab Content: Add Transaction -->
+              <div class="tab-content add">
+                <form method="post" action="{% url 'transaction' %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <input type="text" placeholder="Description" name="description" />
+                  </div>
+                  <div class="form-group">
+                    <input type="text" placeholder="Category" name="category"/>
+                  </div>
+                  <div class="form-group">
+                    <input type="number" placeholder="Amount" name="amount"/>
+                  </div>
+                  <div class="form-group">
+                    <input type="date" name="date"/>
+                  </div>
+                  <button type="submit">Add Transaction</button>
+                </form>
+              </div>
+              
+              <!-- Tab Content: Recent Transactions -->
+              
+              <div class="tab-content recent">
+                {% for i in transactions %}
+                <div class="transaction-item">
+                  <div>
+                    <div class="details">{{i.category}}</div>
+                    <div class="date">{{i.date}}</div>
+                  </div>
+                  <div class="amount income">{{i.amount}}</div>
+                </div>
+                {% endfor %}
+                
+                <div class="transaction-item">
+                  <div>
+                    <div class="details">Groceries</div>
+                    <div class="date">2023-06-05</div>
+                  </div>
+                  <div class="amount expense">-$150.00</div>
+                </div>
+                <!-- More transactions can be added here -->
+              </div>
+            </div>
+          </div>
+        </div> {% endcomment %}
+
+        <!-- Incomes Card -->
+        <div class="card mb-20">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Incomes</div>
+              <div class="card-description">Add, edit, or delete your Incomes here.</div>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="tabs">
+              <!-- Radio buttons for tabs -->
+              <input type="radio" name="tabs" id="tab-add" checked>
+              <label for="tab-add">Add Income</label>
+              <input type="radio" name="tabs" id="tab-recent">
+              <label for="tab-recent">Recent Income</label>
+              
+              <!-- Tab Content: Add Transaction -->
+              <div class="tab-content add">
+                <form method="post" action="{% url 'income' %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <input type="text" placeholder="Name" name="name" />
+                  </div>
+                  <div class="form-group">
+                    <input type="number" placeholder="Amount" name="amount"/>
+                  </div>
+                  <div class="form-group">
+                    <input type="date" name="date"/>
+                  </div>
+                  <button type="submit">Add Income Source</button>
+                </form>
+              </div>
+              
+              <!-- Tab Content: Recent Incomes -->
+              
+              <div class="tab-content recent">
+                {% for i in incomes %}
+                <div class="transaction-item">
+                  <div>
+                    <div class="details">{{i.name}}</div>
+                    <div class="date">{{i.date}}</div>
+                  </div>
+                  <div class="amount income">{{i.amount}}</div>
+                </div>
+                {% endfor %}
+                
+                <div class="transaction-item">
+                  <div>
+                    <div class="details">Groceries</div>
+                    <div class="date">2023-06-05</div>
+                  </div>
+                  <div class="amount expense">-$150.00</div>
+                </div>
+                <!-- More transactions can be added here -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Reports Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Financial Reports</div>
+              <div class="card-description">Generate and view your financial reports.</div>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="reports-controls">
+              <select>
+                <option value="" disabled selected>Report Type</option>
+                <option value="monthly">Monthly Income vs Expenses</option>
+                <option value="category">Expenses by Category</option>
+                <option value="yearly">Yearly Overview</option>
+              </select>
+              <button type="button">Generate Report</button>
+            </div>
+            <div class="chart-placeholder">
+              <!-- Placeholder for Pie Chart -->
+              Sample Expense Distribution
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
