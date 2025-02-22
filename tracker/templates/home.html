@@ -1,202 +1,333 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="{% static 'css/home.css' %}">
-  <title>FinTrack Dashboard</title>
-</head>
-<body>
-  <div class="container">
-    <!-- Sidebar -->
-    <aside>
-      <div class="sidebar-title">FinTrack</div>
-      <nav>
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Transactions</a>
-        <a href="#">Reports</a>
-        <a href="#">Settings</a>
-      </nav>
-    </aside>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{% static 'css/home.css' %}" />
+    <title>FinTrack Dashboard</title>
+  </head>
+  <script src="{% static 'js/graphsandReport.js' %}"></script>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside>
+        <div class="sidebar-title">FinTrack</div>
+        <nav>
+          <a href="#" class="active">Dashboard</a>
+          <a href="#">Transactions</a>
+          <a href="#">Reports</a>
+          <a href="#">Settings</a>
+        </nav>
+      </aside>
 
-    <!-- Main Content -->
-    <main>
-      <!-- Header -->
-      <header>
-        <h2>Dashboard</h2>
-        <div class="header-icons">
-          <!-- Using simple Unicode icons as placeholders -->
-          <button title="Notifications">🔔</button>
-          <button title="User">👤</button>
-        </div>
-      </header>
+      <!-- Main Content -->
+      <main>
+        <!-- Header -->
+        <header>
+          <h2>Dashboard</h2>
+          <div class="header-icons">
+            <!-- Using simple Unicode icons as placeholders -->
+            <button title="Notifications">🔔</button>
+            <button title="User">👤</button>
+          </div>
+        </header>
 
-      <div style="padding: 20px;">
-        <!-- Financial Overview -->
-        <div class="grid mb-20">
-          <!-- Total Balance Card -->
-          <div class="card">
+        <!-- Wrap key report content in a container with id="reportSection" -->
+        <div id="reportSection" style="padding: 20px">
+          <!-- Financial Overview -->
+          <div class="grid mb-20">
+            <!-- Total Balance Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Total Balance</div>
+                <!-- Dollar icon placeholder -->
+                <div>₹</div>
+              </div>
+              <div class="card-content">
+                <div
+                  class="balance-amount {% if balance >= 0 %} text-green {% else %} text-red {% endif %}"
+                >
+                  ₹{{ balance }}
+                </div>
+                <div class="change-text">+20.1% from last month</div>
+              </div>
+            </div>
+            <!-- Total Income Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Total Income</div>
+                <div>₹</div>
+              </div>
+              <div class="card-content">
+                <div class="balance-amount text-green">₹{{total_income}}</div>
+                <div class="change-text">+10.5% from last month</div>
+              </div>
+            </div>
+            <!-- Total Expenses Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Total Expenses</div>
+                <div>₹</div>
+              </div>
+              <div class="card-content">
+                <div class="balance-amount text-red">-₹{{total_expense}}</div>
+                <div class="change-text">-5.2% from last month</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Incomes Card -->
+          <div class="card mb-20">
             <div class="card-header">
-              <div class="card-title">Total Balance</div>
-              <!-- Dollar icon placeholder -->
-              <div>💲</div>
+              <div>
+                <div class="card-title">Incomes</div>
+                <div class="card-description">
+                  Add, edit, or delete your Incomes here.
+                </div>
+              </div>
             </div>
             <div class="card-content">
-              <div class="balance-amount">$12,345.67</div>
-              <div class="change-text">+20.1% from last month</div>
+              <div class="tabs">
+                <!-- Radio buttons for tabs -->
+                <input type="radio" name="tabs" id="tab-add" checked />
+                <label for="tab-add">Add Income</label>
+                <input type="radio" name="tabs" id="tab-recent" />
+                <label for="tab-recent">Recent Income</label>
+
+                <!-- Tab Content: Add Income -->
+                <div class="tab-content add">
+                  <form method="post" action="{% url 'income' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <input type="text" placeholder="Name" name="name" />
+                    </div>
+                    <div class="form-group">
+                      <input type="number" placeholder="Amount" name="amount" />
+                    </div>
+                    <div class="form-group">
+                      <input type="date" name="date" />
+                    </div>
+                    <button type="submit">Add Income Source</button>
+                  </form>
+                </div>
+
+                <!-- Tab Content: Recent Incomes -->
+                <div class="tab-content recent">
+                  {% for i in incomes %}
+                  <div class="transaction-item">
+                    <div>
+                      <div class="details">{{i.name}}</div>
+                      <div class="date">{{i.date}}</div>
+                    </div>
+                    <div class="amount income">
+                      {{i.amount}}
+                      <form
+                        method="post"
+                        action="{% url 'incomedelete' i.id %}"
+                        style="display: inline"
+                      >
+                        {% csrf_token %}
+                        <button
+                          type="submit"
+                          onclick="return confirm('Are you sure you want to delete this income?');"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  <div class="transaction-item">
+                    <div>
+                      <div class="details">Groceries</div>
+                      <div class="date">2023-06-05</div>
+                    </div>
+                    <div class="amount expense">-$150.00</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <!-- Total Income Card -->
-          <div class="card">
+          <div class="card mb-20">
             <div class="card-header">
-              <div class="card-title">Total Income</div>
-              <div>💲</div>
+              <div>
+                <div class="card-title">Transactions</div>
+                <div class="card-description">
+                  Add, edit, or delete your transactions here.
+                </div>
+              </div>
             </div>
             <div class="card-content">
-              <div class="balance-amount">$8,765.43</div>
-              <div class="change-text">+10.5% from last month</div>
+              <div class="tabs">
+                <!-- Radio buttons for tabs -->
+                <input
+                  type="radio"
+                  name="transaction-tabs"
+                  id="tab-add-transaction"
+                  checked
+                />
+                <label for="tab-add-transaction">Add Transaction</label>
+
+                <input
+                  type="radio"
+                  name="transaction-tabs"
+                  id="tab-recent-transactions"
+                />
+                <label for="tab-recent-transactions">Recent Transactions</label>
+
+                <!-- Tab Content: Add Transaction -->
+                <div class="tab-content1">
+                  <form
+                    id="transactionForm"
+                    method="post"
+                    action="{% url 'transaction' %}"
+                  >
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <input
+                        list="categories"
+                        placeholder="Category"
+                        name="category"
+                        id="transactionCategory"
+                      />
+                      <datalist id="categories">
+                        {% for category in categories %}
+                        <option
+                          value="{{ category.name }}"
+                          data-id="{{ category.id }}"
+                        ></option>
+                        {% endfor %}
+                      </datalist>
+                    </div>
+                    <div class="form-group">
+                      <input
+                        type="number"
+                        placeholder="Amount"
+                        name="amount"
+                        id="transactionAmount"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <input type="date" name="date" id="transactionDate" />
+                    </div>
+                    <div class="form-group">
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        name="description"
+                        id="transactionDescription"
+                      />
+                    </div>
+                    <button type="submit">Add Transaction</button>
+                  </form>
+                </div>
+
+                <!-- Tab Content: Recent Transactions -->
+                <div class="tab-content recent">
+                  {% if transactions %} {% for i in transactions %}
+                  <div class="transaction-item">
+                    <div>
+                      <div class="details">{{ i.category }}</div>
+                      <div class="date">{{ i.date }}</div>
+                      <div class="description">{{ i.description }}</div>
+                    </div>
+                    <div class="amount income">
+                      {{ i.amount }}
+                      <form
+                        method="post"
+                        action="{% url 'transactionDelete' i.id %}"
+                        style="display: inline"
+                      >
+                        {% csrf_token %}
+                        <button
+                          type="submit"
+                          onclick="return confirm('Are you sure?');"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  {% endfor %} {% else %}
+                  <p>No transactions found.</p>
+                  {% endif %}
+                </div>
+              </div>
             </div>
           </div>
-          <!-- Total Expenses Card -->
+          <!-- Reports Card with Graphs -->
+          <div class="card">
+            <div class="card-content">
+              <div class="reports-controls">
+                <!-- You can add controls if needed; otherwise, charts will render on page load -->
+                {% comment %}
+                <div
+                  id="chartLoader"
+                  style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 300px;
+                  "
+                >
+                  <span>Loading charts...</span>
+                </div>
+                {% endcomment %}
+
+                <button type="button" onclick="renderCharts()">
+                  Refresh Charts
+                </button>
+              </div>
+              <!-- Containers for the charts -->
+              <div style="display: flex; justify-content: space-around">
+                <!-- Pie Chart Container -->
+                <div
+                  class="chart-container"
+                  style="position: relative; height: 300px; width: 45%"
+                >
+                  <canvas id="pieChart"></canvas>
+                </div>
+                <!-- Bar Chart Container -->
+                <div
+                  class="chart-container"
+                  style="position: relative; height: 300px; width: 45%"
+                >
+                  <canvas id="barChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Savings Trend Section -->
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Total Expenses</div>
-              <div>💲</div>
+              <div>
+                <div class="card-title">Savings Trend</div>
+                <div class="card-description">
+                  Monitor your savings over time.
+                </div>
+              </div>
             </div>
             <div class="card-content">
-              <div class="balance-amount">$3,456.78</div>
-              <div class="change-text">-5.2% from last month</div>
+              <div
+                class="chart-container"
+                style="position: relative; height: 300px; width: 100%"
+              >
+                <canvas id="lineChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Transactions Card -->
-        {% comment %} <div class="card mb-20">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Transactions</div>
-              <div class="card-description">Add, edit, or delete your transactions here.</div>
-            </div>
-          </div>
-          <div class="card-content">
-            <div class="tabs">
-              <!-- Radio buttons for tabs -->
-              <input type="radio" name="tabs" id="tab-add" checked>
-              <label for="tab-add">Add Transaction</label>
-              <input type="radio" name="tabs" id="tab-recent">
-              <label for="tab-recent">Recent Transactions</label>
-              
-              <!-- Tab Content: Add Transaction -->
-              <div class="tab-content add">
-                <form method="post" action="{% url 'transaction' %}">
-                  {% csrf_token %}
-                  <div class="form-group">
-                    <input type="text" placeholder="Description" name="description" />
-                  </div>
-                  <div class="form-group">
-                    <input type="text" placeholder="Category" name="category"/>
-                  </div>
-                  <div class="form-group">
-                    <input type="number" placeholder="Amount" name="amount"/>
-                  </div>
-                  <div class="form-group">
-                    <input type="date" name="date"/>
-                  </div>
-                  <button type="submit">Add Transaction</button>
-                </form>
-              </div>
-              
-              <!-- Tab Content: Recent Transactions -->
-              
-              <div class="tab-content recent">
-                {% for i in transactions %}
-                <div class="transaction-item">
-                  <div>
-                    <div class="details">{{i.category}}</div>
-                    <div class="date">{{i.date}}</div>
-                  </div>
-                  <div class="amount income">{{i.amount}}</div>
-                </div>
-                {% endfor %}
-                
-                <div class="transaction-item">
-                  <div>
-                    <div class="details">Groceries</div>
-                    <div class="date">2023-06-05</div>
-                  </div>
-                  <div class="amount expense">-$150.00</div>
-                </div>
-                <!-- More transactions can be added here -->
-              </div>
-            </div>
-          </div>
-        </div> {% endcomment %}
-
-        <!-- Incomes Card -->
-        <div class="card mb-20">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Incomes</div>
-              <div class="card-description">Add, edit, or delete your Incomes here.</div>
-            </div>
-          </div>
-          <div class="card-content">
-            <div class="tabs">
-              <!-- Radio buttons for tabs -->
-              <input type="radio" name="tabs" id="tab-add" checked>
-              <label for="tab-add">Add Income</label>
-              <input type="radio" name="tabs" id="tab-recent">
-              <label for="tab-recent">Recent Income</label>
-              
-              <!-- Tab Content: Add Transaction -->
-              <div class="tab-content add">
-                <form method="post" action="{% url 'income' %}">
-                  {% csrf_token %}
-                  <div class="form-group">
-                    <input type="text" placeholder="Name" name="name" />
-                  </div>
-                  <div class="form-group">
-                    <input type="number" placeholder="Amount" name="amount"/>
-                  </div>
-                  <div class="form-group">
-                    <input type="date" name="date"/>
-                  </div>
-                  <button type="submit">Add Income Source</button>
-                </form>
-              </div>
-              
-              <!-- Tab Content: Recent Incomes -->
-              
-              <div class="tab-content recent">
-                {% for i in incomes %}
-                <div class="transaction-item">
-                  <div>
-                    <div class="details">{{i.name}}</div>
-                    <div class="date">{{i.date}}</div>
-                  </div>
-                  <div class="amount income">{{i.amount}}</div>
-                </div>
-                {% endfor %}
-                
-                <div class="transaction-item">
-                  <div>
-                    <div class="details">Groceries</div>
-                    <div class="date">2023-06-05</div>
-                  </div>
-                  <div class="amount expense">-$150.00</div>
-                </div>
-                <!-- More transactions can be added here -->
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Reports Card -->
+        <!-- Financial Reports Generation Section -->
         <div class="card">
           <div class="card-header">
             <div>
               <div class="card-title">Financial Reports</div>
-              <div class="card-description">Generate and view your financial reports.</div>
+              <div class="card-description">
+                Generate and view your financial reports.
+              </div>
             </div>
           </div>
           <div class="card-content">
@@ -207,16 +338,40 @@
                 <option value="category">Expenses by Category</option>
                 <option value="yearly">Yearly Overview</option>
               </select>
-              <button type="button">Generate Report</button>
+              <button type="button" onclick="generatePDF()">
+                Generate Report
+              </button>
             </div>
             <div class="chart-placeholder">
-              <!-- Placeholder for Pie Chart -->
+              <!-- Placeholder for additional report details if needed -->
               Sample Expense Distribution
             </div>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
-</body>
+      </main>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+    >
+      <script>
+          <script>
+            function generatePDF() {
+              const report = document.getElementById("reportSection");
+              html2canvas(report, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const imgProps = pdf.getImageProperties(imgData);
+                const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+                pdf.save('FinTrack_Report.pdf');
+              });
+            }
+    </script>
+  </body>
 </html>

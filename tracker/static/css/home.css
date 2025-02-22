@@ -232,10 +232,45 @@ form button:hover {
     font-size: 0.9rem;
     margin-top: 10px;
 }
-/* Utility Classes */
+
 .mb-20 {
     margin-bottom: 20px;
 }
 .mt-20 {
     margin-top: 20px;
 }
+
+  .tab-content1 {
+    display: block !important; 
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+
+.tab-content1 {
+    display: none;
+    border: 1px solid #e2e8f0;
+    border-top: none;
+    padding: 15px;
+    border-radius: 0 4px 4px 4px;
+}
+.text-green {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .text-red {
+    color: red;
+    font-weight: bold;
+  }
+.tab-content1, .tab-content.recent {
+    display: none;
+}
+#tab-add-transaction:checked ~ .tab-content1 {
+    display: block;
+}
+
+#tab-recent-transactions:checked ~ .tab-content.recent {
+    display: block;
+}
+

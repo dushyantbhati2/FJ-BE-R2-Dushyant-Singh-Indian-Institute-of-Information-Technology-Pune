@@ -12,8 +12,9 @@ class userSerializers(ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
     def validate(self, data):
-        print(data)
-        if data.get("password")!=self.initial_data.get("cnfpassword"):
+        if self.initial_data.get("balance") is None:
+            raise ValidationError({'error':'balance field is nescessary'})
+        elif data.get("password")!=self.initial_data.get("cnfpassword"):
             raise ValidationError({'error':'Password dont match'})
         if User.objects.filter(username=data.get("username")).exists():
             raise ValidationError({'error':'Username already taken'})
@@ -25,6 +26,7 @@ class userSerializers(ModelSerializer):
         user = User(username=validated_data["username"],email=validated_data["email"])
         user.set_password(validated_data["password"])
         user.save()
+        models.Profile.objects.create(user=user,balance=self.initial_data.get("balance"))
         return user
     
 class IncomeSerializer(ModelSerializer):
@@ -36,22 +38,29 @@ class IncomeSerializer(ModelSerializer):
     def create(self, validated_data):
         return models.IncomeSource.objects.create(**validated_data)
     
-
 class TransactionSerializer(ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     category = serializers.CharField()
 
     class Meta:
         model = models.Transaction
-        fields = ['user', 'description', 'amount', 'date', 'category']
+        fields = ['id','user', 'description', 'amount', 'date', 'category']
 
     def create(self, validated_data):
         category_name = validated_data.pop("category")
-        cat = models.Category.objects.create(
-            name=category_name,
-            user=self.context["request"].user
-        )
-        validated_data["category"] = cat
+        user = self.context["request"].user
+        category = models.Category.objects.filter(name=category_name, user=user).first()
+        if not category:
+            category = models.Category.objects.create(name=category_name, user=user)
+        validated_data["category"] = category
         return models.Transaction.objects.create(**validated_data)
 
-    
+class ProfileSerializer(ModelSerializer):
+    class Meta:
+        model=models.Profile
+        fields='__all__'
+
+class ReportsSerailizer(ModelSerializer):
+    class Meta:
+        model=models.Reports
+        fields='__all__'   
