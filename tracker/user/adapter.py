@@ -9,6 +9,7 @@ User = get_user_model()
 class MyAccountAdapter(DefaultAccountAdapter):
     def get_login_redirect_url(self, request):
         return resolve_url("/")
+
 class MySocialAccountAdapter(DefaultSocialAccountAdapter):
     def save_user(self, request, sociallogin, form=None):
         user = super().save_user(request, sociallogin, form)

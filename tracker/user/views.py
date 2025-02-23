@@ -50,29 +50,6 @@ class LoginView(APIView):
         messages.error(request, "Invalid Credentials")
         return render(request, "login.html")
 
-
-    login_url = reverse_lazy("login") 
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        categories=models.Category.objects.filter(user=user)
-        transactions = models.Transaction.objects.filter(user=user)
-        incomes = models.IncomeSource.objects.filter(user=user)
-        serial_transactions = serializers.TransactionSerializer(transactions, many=True)
-        serial_incomes = serializers.IncomeSerializer(incomes, many=True)
-        total_income = models.IncomeSource.objects.filter(user=user).aggregate(total=Sum('amount'))['total']
-        if total_income is None:
-            total_income=0
-        total_expense=models.Transaction.objects.filter(user=user).aggregate(total=Sum('amount'))['total']
-        if total_expense is None:
-            total_expense=0
-        balance=models.Profile.objects.get(user=user).balance
-        balance=balance-total_expense+total_income
-        # email.check(request)
-        return render(request, "home.html", {"categories":categories,"transactions": serial_transactions.data, "incomes": serial_incomes.data,"total_expense":total_expense,"total_income":total_income,"balance":balance})
-    from django.shortcuts import render, get_object_or_404, redirect
-
 class Home(LoginRequiredMixin, APIView):
     login_url = reverse_lazy("login") 
     permission_classes = [IsAuthenticated]

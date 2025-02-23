@@ -1,8 +1,10 @@
 from user import models
 from django.db.models import Sum
 import resend
-
-resend.api_key = "re_5hGa6etJ_PvHBh3GAcur3niJoCMGTb37X"
+from dotenv import load_dotenv
+import os
+load_dotenv()
+resend.api_key = os.getenv('resend')
 
 def send_mail():
     resend.Emails.send({
@@ -21,7 +23,7 @@ def check(request):
             budget_amount=budget.aggregate(total=Sum('amount'))['total'] or 0
             total_expense = (
                 models.Transaction.objects
-                .filter(category=i, date__gte=budget.date,user=request.user)
+                .filter(category=i, date__gte=budget[0].date,user=request.user)
                 .aggregate(total=Sum("amount"))["total"] or 0
             )
         if int(budget_amount) - int(total_expense) < 0:
