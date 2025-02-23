@@ -71,7 +71,7 @@ header h2 {
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 15px;
-    margin-bottom: 20px;
+    margin: 20px;
 }
 .card-header {
     display: flex;
@@ -234,12 +234,8 @@ form button:hover {
 }
 
 .mb-20 {
-    margin-bottom: 20px;
+    margin: 20px;
 }
-.mt-20 {
-    margin-top: 20px;
-}
-
   .tab-content1 {
     display: block !important; 
     opacity: 1 !important;
@@ -273,4 +269,198 @@ form button:hover {
 #tab-recent-transactions:checked ~ .tab-content.recent {
     display: block;
 }
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+.progress {
+    height: 10px;
+    background-color: green;
+    border-radius: 5px;
+}
+.budget-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    width: 260px; /* Adjust width as needed */
+    text-align: center;
+}
 
+.category-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.select-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.category-dropdown {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    appearance: none;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    transition: border 0.3s ease-in-out;
+}
+
+.category-dropdown:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+/* Custom Dropdown Arrow */
+.select-container::after {
+    content: '\25BC';
+    font-size: 12px;
+    color: #666;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+/* Receipt Section (Matches Transactions & Budget Styling) */
+.receipt-card {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Receipt Card Header */
+.receipt-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+.receipt-card-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+/* Receipt Upload Form */
+.receipt-form .form-group {
+    margin  : 10px;
+}
+
+.receipt-form input[type="file"] {
+    width: 50%;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background: #f7fafc;
+}
+
+.receipt-form button {
+    padding: 10px 15px;
+    background: #3182ce;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.receipt-form button:hover {
+    background: #2b6cb0;
+}
+
+/* Receipt List (Similar to Transactions) */
+.receipt-list {
+    margin-top: 15px;
+}
+
+/* Receipt Item (Similar to Transaction Item) */
+.receipt-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #edf2f7;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.receipt-item .details {
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
+.receipt-item .date {
+    font-size: 0.75rem;
+    color: #718096;
+}
+
+.receipt-item .actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* View & Delete Buttons (Similar to Transaction Actions) */
+.receipt-item .view-btn,
+.receipt-item .delete-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.receipt-item .view-btn {
+    background: #3182ce;
+    color: white;
+    border: none;
+}
+
+.receipt-item .view-btn:hover {
+    background: #2b6cb0;
+}
+
+.receipt-item .delete-btn {
+    background: #e53e3e;
+    color: white;
+    border: none;
+}
+
+.receipt-item .delete-btn:hover {
+    background: #c53030;
+}

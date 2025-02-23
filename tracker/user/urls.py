@@ -10,5 +10,9 @@ urlpatterns = [
     path('incomedelete/<uuid:pk>',views.IncomeDelete.as_view(),name="incomedelete"),
     path('piechart',views.PieChart.as_view(),name="piechart"),
     path('bargraph',views.Bargraph.as_view(),name="bargraph"),
+    path('budget',views.BudgetView.as_view(),name="budget"),
+    path('budget/<uuid:pk>',views.BudgetDelete.as_view(),name="budgetdelete"),
+    path('receipt',views.Receipts.as_view(),name="receipt"),
+    path('receipt/<uuid:pk>',views.ReceiptsDelete.as_view(),name="receiptdelete"),
     # path('',)
 ]

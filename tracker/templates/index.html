@@ -1,3 +1,4 @@
+{% load socialaccount %}
 {% if messages %}
     {% for message in messages %}
         <p style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">
@@ -25,3 +26,4 @@
 
     <button type="submit">Register</button>
 </form>
+<a href="{% provider_login_url 'google' %}?next={{ request.path }}">Login with Google</a>

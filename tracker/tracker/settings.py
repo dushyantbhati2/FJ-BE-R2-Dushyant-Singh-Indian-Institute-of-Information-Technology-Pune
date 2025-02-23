@@ -37,15 +37,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user',
+    
     'rest_framework',
-    'corsheaders'
+    # 'corsheaders',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'user',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
+    # "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -134,3 +140,29 @@ MEDIA_ROOT=os.path.join(BASE_DIR,'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+SITE_ID = 2
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',           # default
+    'allauth.account.auth_backends.AuthenticationBackend',   # allauth
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': '939932698776-8bo624ug0hkr8qpifpsc8th3q07e4nmh.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
+ACCOUNT_ADAPTER = "user.adapter.MyAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "user.adapter.MySocialAccountAdapter"
+

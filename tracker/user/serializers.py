@@ -60,7 +60,32 @@ class ProfileSerializer(ModelSerializer):
         model=models.Profile
         fields='__all__'
 
+class BugetSerializer(ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    category = serializers.CharField()
+    class Meta:
+        model=models.Budget
+        fields='__all__'
+    def create(self, validated_data):
+        category_name = validated_data.pop("category")
+        user = self.context["request"].user
+        category = models.Category.objects.filter(name=category_name, user=user).first()
+        if not category:
+            category = models.Category.objects.create(name=category_name, user=user)
+        validated_data["category"] = category
+        return models.Budget.objects.create(**validated_data)
+        
 class ReportsSerailizer(ModelSerializer):
     class Meta:
         model=models.Reports
-        fields='__all__'   
+        fields='__all__'
+    
+
+class ReceiptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Receipts
+        fields = ['file']  # Include other fields if necessary
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        return models.Receipts.objects.create(user=user, **validated_data)

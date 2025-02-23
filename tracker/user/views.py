@@ -14,8 +14,11 @@ from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 import json
 from datetime import datetime
+from utlis import email
+from rest_framework.parsers import MultiPartParser
 class SignUpView(APIView):
     def get(self, request):
+        # email.send_mail()
         return render(request, "index.html")
 
     def post(self, request):
@@ -33,6 +36,7 @@ class SignUpView(APIView):
         return render(request, "index.html")
 
 class LoginView(APIView):
+
     def get(self, request):
         return render(request, "login.html")
 
@@ -46,7 +50,7 @@ class LoginView(APIView):
         messages.error(request, "Invalid Credentials")
         return render(request, "login.html")
 
-class Home(LoginRequiredMixin,APIView):
+
     login_url = reverse_lazy("login") 
     permission_classes = [IsAuthenticated]
 
@@ -65,7 +69,92 @@ class Home(LoginRequiredMixin,APIView):
             total_expense=0
         balance=models.Profile.objects.get(user=user).balance
         balance=balance-total_expense+total_income
+        # email.check(request)
         return render(request, "home.html", {"categories":categories,"transactions": serial_transactions.data, "incomes": serial_incomes.data,"total_expense":total_expense,"total_income":total_income,"balance":balance})
+    from django.shortcuts import render, get_object_or_404, redirect
+
+class Home(LoginRequiredMixin, APIView):
+    login_url = reverse_lazy("login") 
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        categories = models.Category.objects.filter(user=user)
+        transactions = models.Transaction.objects.filter(user=user)
+        incomes = models.IncomeSource.objects.filter(user=user)
+        serial_transactions = serializers.TransactionSerializer(transactions, many=True)
+        serial_incomes = serializers.IncomeSerializer(incomes, many=True)
+        total_income = models.IncomeSource.objects.filter(user=user).aggregate(total=Sum('amount'))['total'] or 0
+        total_expense = models.Transaction.objects.filter(user=user).aggregate(total=Sum('amount'))['total'] or 0
+        balance = models.Profile.objects.get(user=user).balance - total_expense + total_income
+        receipts=models.Receipts.objects.filter(user=user)
+        email.check(request)
+        context = {
+            "categories": categories,
+            "transactions": serial_transactions.data,
+            "incomes": serial_incomes.data,
+            "total_income": total_income,
+            "total_expense": total_expense,
+            "balance": balance,
+            "reciepts":receipts
+        }
+        return render(request, "home.html", context)
+
+    def post(self, request):
+        # Get the selected category from the POST data (using its ID)
+        category_id = request.POST.get("category")
+        category = get_object_or_404(models.Category, id=category_id, user=request.user)
+        
+        budget_instance = (
+            models.Budget.objects
+            .filter(category=category, user=request.user)
+            .order_by("date")
+            .last()
+        )
+        if not budget_instance:
+            messages.error(request, "No budget found for the selected category.")
+            return redirect("Home")
+        
+        total = models.Budget.objects.filter(category=category, user=request.user).aggregate(total=Sum('amount'))['total'] or 0
+                
+        total_expense_category = (
+            models.Transaction.objects
+            .filter(category=category, date__gte=budget_instance.date,user=request.user)
+            .aggregate(total=Sum("amount"))["total"] or 0
+        )
+        
+        remaining = total - total_expense_category
+
+        budget_detail = {
+            "budget_amount": total,
+            "budget_start_date": budget_instance.date,
+            "expense_since_budget": total_expense_category,
+            "remaining": remaining,
+            "category_name": category.name,
+        }
+
+        user = request.user
+        categories = models.Category.objects.filter(user=user)
+        transactions = models.Transaction.objects.filter(user=user)
+        incomes = models.IncomeSource.objects.filter(user=user)
+        serial_transactions = serializers.TransactionSerializer(transactions, many=True)
+        serial_incomes = serializers.IncomeSerializer(incomes, many=True)
+        total_income = models.IncomeSource.objects.filter(user=user)\
+                        .aggregate(total=Sum("amount"))["total"] or 0
+        total_expense_all = models.Transaction.objects.filter(user=user)\
+                        .aggregate(total=Sum("amount"))["total"] or 0
+        balance = models.Profile.objects.get(user=user).balance - total_expense_all + total_income
+
+        context = {
+            "categories": categories,
+            "transactions": serial_transactions.data,
+            "incomes": serial_incomes.data,
+            "total_income": total_income,
+            "total_expense": total_expense_all,
+            "balance": balance,
+            "budget_detail": budget_detail,
+        }
+        return render(request, "home.html", context)
 
 class IncomeSource(LoginRequiredMixin,APIView):
     login_url = reverse_lazy("login") 
@@ -190,4 +279,61 @@ class ReportsView(LoginRequiredMixin,APIView):
         if models.Reports.objects.filter(name=name).exists():
             return redirect("Home")
         models.Reports.objects.create(user=user,file=files)
+        return redirect("Home")
+    
+class BudgetView(LoginRequiredMixin,APIView):
+    login_url = reverse_lazy("login")
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        budgets=models.Budget.objects.filter(user=request.user)
+        serial=serializers.BugetSerializer(budgets,many=True)
+        return serial.data
+    def post(self,request):
+        serial=serializers.BugetSerializer(data=request.data,context={'request':request})
+        try:
+            if serial.is_valid(raise_exception=True):
+                serial.save()
+                return redirect("Home")
+        except ValidationError as e:
+            messages.error(request, e)
+        return redirect("Home")
+    
+class BudgetDelete(LoginRequiredMixin,APIView):
+    login_url = reverse_lazy("login")
+    permission_classes = [IsAuthenticated]
+    def post(self,request,pk):
+        budget=models.Budget.objects.get(id=pk)
+        budget.delete()
+        return redirect("Home")
+
+class BudgetByCategory(LoginRequiredMixin,APIView):
+    login_url = reverse_lazy("login")
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        category=request.data.get("category")
+        cat=models.Category.objects.get(name=category,user=request.user)
+        budget=models.Budget.objects.filter(category=cat)
+        serial=serializers.BugetSerializer(budget,many=True)
+        return serial.data
+    
+class Receipts(LoginRequiredMixin,APIView):
+    login_url = reverse_lazy("login")
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
+    def post(self,request):
+        serial=serializers.ReceiptSerializer(data=request.data,context={'request': request})
+        try:
+            if serial.is_valid(raise_exception=True):
+                serial.save()
+                return redirect("Home")
+        except ValidationError as e:
+            messages.error(request, e)
+        return redirect("Home")
+    
+class ReceiptsDelete(LoginRequiredMixin,APIView):
+    login_url = reverse_lazy("login")
+    permission_classes = [IsAuthenticated]
+    def post(self,request,pk):
+        receipt=models.Receipts.objects.get(id=pk)
+        receipt.delete()
         return redirect("Home")
