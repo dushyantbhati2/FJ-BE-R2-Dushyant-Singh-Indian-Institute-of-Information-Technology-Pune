@@ -6,8 +6,8 @@ let bar_expense_data=[];
 async function fetchChartData() {
   try {
     const [barResponse, pieResponse] = await Promise.all([
-      fetch("http://127.0.0.1:8000/bargraph"),
-      fetch("/piechart")
+      fetch("https://fj-be-r2-dushyant-singh-indian-institute.onrender.com/bargraph"),
+      fetch("https://fj-be-r2-dushyant-singh-indian-institute.onrender.com/piechart")
     ]);
 
     if (!barResponse.ok || !pieResponse.ok) {
