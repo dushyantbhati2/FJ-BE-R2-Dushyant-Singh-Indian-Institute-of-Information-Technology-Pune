@@ -84,8 +84,26 @@ class ReportsSerailizer(ModelSerializer):
 class ReceiptSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Receipts
-        fields = ['file']  # Include other fields if necessary
-
+        fields = ['file']
     def create(self, validated_data):
         user = self.context['request'].user
         return models.Receipts.objects.create(user=user, **validated_data)
+    
+class SharedExpenseSerializer(serializers.ModelSerializer):
+    payer=serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = models.SharedExpense
+        fields = '__all__'
+
+
+class ExpenseSplitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ExpenseSplit
+        fields = '__all__'
+    def create(self, validated_data):
+        validated_data["amount"]=int(validated_data["amount"])/(self.initial_data.get("len")+1)
+        return models.ExpenseSplit.objects.create(**validated_data)
+
+
+        
+

@@ -464,3 +464,8 @@ form button:hover {
 .receipt-item .delete-btn:hover {
     background: #c53030;
 }
+@media print {
+    input, textarea, select, button {
+        display: none !important;
+    }
+}

@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-&c9_fb+r5x2dcb3#zgd=v(0zo#kc6q#6yp5)a0z%1_^zc&$phw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -53,12 +53,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
     # "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -169,3 +169,4 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_ADAPTER = "user.adapter.MyAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "user.adapter.MySocialAccountAdapter"
 
+LOGIN_REDIRECT_URL='Home'

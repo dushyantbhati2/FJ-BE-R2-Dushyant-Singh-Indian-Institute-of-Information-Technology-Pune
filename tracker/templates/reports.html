@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Financial Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1, h2 { color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        img { max-width: 100%; height: auto; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Financial Report for {{ user.username }}</h1>
+    <p>Date: {{ date }}</p>
+
+    <h2>Balance</h2>
+    <p>Total Balance: ₹{{ profile.balance }}</p>
+
+    <h2>Income Sources</h2>
+    <table>
+        <tr><th>Name</th><th>Amount</th><th>Date</th></tr>
+        {% for income in incomes %}
+        <tr><td>{{ income.name }}</td><td>₹{{ income.amount }}</td><td>{{ income.date }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>Transactions</h2>
+    <table>
+        <tr><th>Category</th><th>Amount</th><th>Date</th><th>Description</th></tr>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.category.name }}</td>
+            <td>₹{{ transaction.amount }}</td>
+            <td>{{ transaction.date }}</td>
+            <td>{{ transaction.description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Budgets</h2>
+    <table>
+        <tr><th>Category</th><th>Amount</th><th>Date</th></tr>
+        {% for budget in budgets %}
+        <tr><td>{{ budget.category.name }}</td><td>₹{{ budget.amount }}</td><td>{{ budget.date }}</td></tr>
+        {% endfor %}
+    </table>
+
+    {% if income_chart %}
+    <h2>Income Distribution</h2>
+    <img src="data:image/png;base64,{{ income_chart }}" alt="Income Distribution Chart">
+    {% endif %}
+
+    {% if transaction_chart %}
+    <h2>Expense Distribution</h2>
+    <img src="data:image/png;base64,{{ transaction_chart }}" alt="Expense Distribution Chart">
+    {% endif %}
+
+</body>
+</html>

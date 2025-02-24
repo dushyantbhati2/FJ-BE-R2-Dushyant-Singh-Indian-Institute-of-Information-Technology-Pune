@@ -14,5 +14,7 @@ urlpatterns = [
     path('budget/<uuid:pk>',views.BudgetDelete.as_view(),name="budgetdelete"),
     path('receipt',views.Receipts.as_view(),name="receipt"),
     path('receipt/<uuid:pk>',views.ReceiptsDelete.as_view(),name="receiptdelete"),
+    path('split_expense',views.SplitExpense.as_view(),name="splitExpense"),
+    path('generate_report/', views.generate_pdf, name='generate_financial_report'),
     # path('',)
 ]

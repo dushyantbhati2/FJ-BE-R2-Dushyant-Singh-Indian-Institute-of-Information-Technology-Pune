@@ -16,6 +16,22 @@ import json
 from datetime import datetime
 from utlis import email
 from rest_framework.parsers import MultiPartParser
+import matplotlib.pyplot as plt
+import io
+import base64
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import get_template
+from .models import Profile, IncomeSource, Transaction, Budget
+from datetime import datetime
+import os
+import tempfile
+import matplotlib
+matplotlib.use('Agg')  # ✅ Fix: Use non-GUI backend
+import matplotlib.pyplot as plt
+from fpdf import FPDF
+from django.http import HttpResponse
+import numpy as np
 class SignUpView(APIView):
     def get(self, request):
         # email.send_mail()
@@ -137,11 +153,6 @@ class IncomeSource(LoginRequiredMixin,APIView):
     login_url = reverse_lazy("login") 
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        sources = models.IncomeSource.objects.filter(user=user)
-        serial = serializers.IncomeSerializer(sources, many=True)
-        return serial.data
 
     def post(self, request):
         serial = serializers.IncomeSerializer(data=request.data, context={'request': request})
@@ -314,3 +325,185 @@ class ReceiptsDelete(LoginRequiredMixin,APIView):
         receipt=models.Receipts.objects.get(id=pk)
         receipt.delete()
         return redirect("Home")
+
+class SplitExpense(LoginRequiredMixin, APIView):
+    login_url = reverse_lazy("login")
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        shared_expenses = models.SharedExpense.objects.filter(payer=user)
+        expense_splits = models.ExpenseSplit.objects.filter(shared_expense__in=shared_expenses)
+        users = models.User.objects.all()
+        return render(request, "splitExpense.html", {"expense_splits": expense_splits, "users": users})
+
+    def post(self, request):
+        serial1 = serializers.SharedExpenseSerializer(data=request.data, context={'request': request})
+        try:
+            if serial1.is_valid(raise_exception=True):
+                shared = serial1.save()
+                messages.success(request, "Share successfully created.")
+        except ValidationError as e:
+            messages.error(request, e.detail)
+        data = request.data.copy()
+        data["shared_expense"] = shared.id
+        participant_username = data.getlist("usernames")
+        list_username=participant_username[0].split(",")
+        data["len"]=len(list_username)
+        for i in list_username:
+            if i:
+                try:
+                    participant = models.User.objects.get(username=i)
+                    data["participant"] = participant.pk
+                except models.User.DoesNotExist:
+                    messages.error(request, f"User {i} not found.")
+                    return redirect("splitExpense")
+            else:
+                messages.error(request, "Username is required for participant.")
+                return redirect("splitExpense")
+            serial = serializers.ExpenseSplitSerializer(data=data, context={'request': request})
+            try:
+                if serial.is_valid(raise_exception=True):
+                    serial.save()
+                    messages.success(request, "Expense split successfully created.")
+            except ValidationError as e:
+                messages.error(request, e.detail)
+        return redirect("splitExpense")
+
+
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Arial", 'B', 14)
+        self.cell(200, 10, "Financial Report", ln=True, align='C')
+        self.ln(10)
+
+    def add_table(self, header, data, col_widths):
+        self.set_font("Arial", 'B', 12)
+        for i, col_name in enumerate(header):
+            self.cell(col_widths[i], 10, col_name, border=1, align='C')
+        self.ln()
+
+        self.set_font("Arial", '', 10)
+        for row in data:
+            for i, cell in enumerate(row):
+                self.cell(col_widths[i], 10, str(cell), border=1, align='C')
+            self.ln()
+        self.ln(5)
+
+def generate_pdf(request):
+    pdf = PDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    user = request.user
+    try:
+        profile = models.Profile.objects.get(user=user)
+    except models.Profile.DoesNotExist:
+        profile = models.Profile.objects.create(user=user)
+
+    incomes = models.IncomeSource.objects.filter(user=user)
+    transactions = models.Transaction.objects.filter(user=user)
+
+    # Balance Section
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(200, 10, f"Total Balance: INR {profile.balance}", ln=True)
+    pdf.ln(5)
+
+    # Income Table
+    pdf.cell(200, 10, "Income Sources", ln=True, align='C')
+    income_data = [(income.name, f"INR {income.amount}", income.date.strftime('%Y-%m-%d')) for income in incomes]
+    pdf.add_table(["Source", "Amount", "Date"], income_data, [80, 50, 50])
+
+    # Transactions Table
+    pdf.cell(200, 10, "Transactions", ln=True, align='C')
+    transaction_data = [(txn.category.name if txn.category else 'No Category', 
+                         f"INR {txn.amount}", txn.date.strftime('%Y-%m-%d')) for txn in transactions]
+    pdf.add_table(["Category", "Amount", "Date"], transaction_data, [80, 50, 50])
+
+    # Generate and Embed Graphs
+    graph_images = generate_graphs(incomes, transactions, profile.balance)
+    
+    for graph_img in graph_images:
+        pdf.add_page()
+        pdf.image(graph_img, x=30, y=50, w=150)
+        os.remove(graph_img)  # Delete temp image after adding to PDF
+
+    # ✅ FIXED PDF OUTPUT HANDLING
+    response = HttpResponse(pdf.output(dest="S").encode("latin1"), content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="financial_report.pdf"'
+
+    return response
+
+def generate_graphs(incomes, transactions, balance):    
+    """Generate multiple graphs and return the file paths."""
+    graphs = []
+
+    # 1. Bar Chart (Income vs Expenses)
+    fig, ax = plt.subplots(figsize=(5, 3))
+    income_dates = [inc.date.strftime('%Y-%m-%d') for inc in incomes]
+    income_amounts = [inc.amount for inc in incomes]
+
+    expense_dates = [txn.date.strftime('%Y-%m-%d') for txn in transactions]
+    expense_amounts = [txn.amount for txn in transactions]
+
+    ax.bar(income_dates, income_amounts, label="Income", color="green")
+    ax.bar(expense_dates, expense_amounts, label="Expenses", color="red")
+
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Amount (INR)")
+    ax.set_title("Income & Expense Overview")
+    ax.legend()
+
+    graphs.append(save_plot(fig))
+
+    # 2. Pie Chart (Income Distribution)
+    fig, ax = plt.subplots(figsize=(4, 3))
+    income_labels = [inc.name for inc in incomes]
+    income_values = [inc.amount for inc in incomes]
+
+    ax.pie(income_values, labels=income_labels, autopct='%1.1f%%', startangle=140, colors=plt.cm.Paired.colors)
+    ax.set_title("Income Distribution")
+
+    graphs.append(save_plot(fig))
+
+    # 3. Pie Chart (Expense Distribution)
+    fig, ax = plt.subplots(figsize=(4, 3))
+    expense_labels = [txn.category.name if txn.category else 'No Category' for txn in transactions]
+    expense_values = [txn.amount for txn in transactions]
+
+    ax.pie(expense_values, labels=expense_labels, autopct='%1.1f%%', startangle=140, colors=plt.cm.Set3.colors)
+    ax.set_title("Expense Distribution")
+
+    graphs.append(save_plot(fig))
+
+    # 4. Line Graph (Savings Over Time)
+    fig, ax = plt.subplots(figsize=(5, 3))
+    
+    total_income = sum(income_amounts) if income_amounts else 0
+    total_expense = sum(expense_amounts) if expense_amounts else 0
+    savings = total_income - total_expense
+
+    dates = sorted(set(income_dates + expense_dates))
+    savings_over_time = [savings for _ in dates]
+
+    ax.plot(dates, savings_over_time, marker='o', linestyle='-', color='blue', label="Savings")
+    ax.fill_between(dates, savings_over_time, color='blue', alpha=0.2)
+
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Savings (INR)")
+    ax.set_title("Savings Over Time")
+    ax.legend()
+
+    graphs.append(save_plot(fig))
+
+    return graphs
+
+def save_plot(fig):
+    """Saves a matplotlib figure as a temporary file and returns the file path."""
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig(temp_file.name, format="png", dpi=100)
+    plt.close(fig)
+    
+    return temp_file.name  # Return file path for use in PDF

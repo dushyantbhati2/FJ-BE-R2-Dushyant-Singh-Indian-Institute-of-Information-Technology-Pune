@@ -257,127 +257,148 @@
             </div>
           </div>
           <div>
-         <div class="card mb-20">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Set your Budget</div>
-                <div class="card-description">
-                  Add, edit, or delete your Budget here.
+            <div class="card mb-20">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Set your Budget</div>
+                  <div class="card-description">
+                    Add, edit, or delete your Budget here.
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="card-content">
-              <div class="tabs">
-                <!-- Radio buttons for tabs -->
-                <input
-                  type="radio"
-                  name="transaction-tabs"
-                  id="tab-add-transaction"
-                  checked
-                />
-                <label for="tab-add-transaction">Add Budget</label>
 
-                <!-- Tab Content: Add Budget -->
-                <div class="tab-content1">
-                  <form
-                    id="transactionForm"
-                    method="post"
-                    action="{% url 'budget' %}"
-                  >
-                    {% csrf_token %}
-                    <div class="form-group">
-                      <input
-                        list="categories"
-                        placeholder="Category"
-                        name="category"
-                        id="transactionCategory"
-                      />
-                      <datalist id="categories">
-                        {% for category in categories %}
-                        <option
-                          value="{{ category.name }}"
-                          data-id="{{ category.id }}"
-                        ></option>
-                        {% endfor %}
-                      </datalist>
-                    </div>
-                    <div class="form-group">
-                      <input
-                        type="number"
-                        placeholder="Amount"
-                        name="amount"
-                        id="transactionAmount"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <input type="date" name="date" id="transactionDate" />
-                    </div>
-                    <button type="submit">Add Budget</button>
-                  </form>
-                </div>
+
+              <div class="card-content">
+                <div class="tabs">
+                  <!-- Radio buttons for tabs -->
+                  <input
+                    type="radio"
+                    name="transaction-tabs"
+                    id="tab-add-transaction"
+                    checked
+                  />
+                  <label for="tab-add-transaction">Add Budget</label>
+
+                  <!-- Tab Content: Add Budget -->
+                  <div class="tab-content1">
+                    <form
+                      id="transactionForm"
+                      method="post"
+                      action="{% url 'budget' %}"
+                    >
+                      {% csrf_token %}
+                      <div class="form-group">
+                        <input
+                          list="categories"
+                          placeholder="Category"
+                          name="category"
+                          id="transactionCategory"
+                        />
+                        <datalist id="categories">
+                          {% for category in categories %}
+                          <option
+                            value="{{ category.name }}"
+                            data-id="{{ category.id }}"
+                          ></option>
+                          {% endfor %}
+                        </datalist>
+                      </div>
+                      <div class="form-group">
+                        <input
+                          type="number"
+                          placeholder="Amount"
+                          name="amount"
+                          id="transactionAmount"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <input type="date" name="date" id="transactionDate" />
+                      </div>
+                      <button type="submit">Add Budget</button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-<div class="category-budget-section">
-  <!-- Category Selection Dropdown -->
- <form method="post" class="budget-form">
-  {% csrf_token %}
-        <label for="category-select" class="category-label">Select Category:</label>
-        <div class="select-container">
-            <select id="category-select" class="category-dropdown" name="category">
-                {% for category in categories %}
+          <div class="category-budget-section">
+            <!-- Category Selection Dropdown -->
+            <form method="post" class="budget-form">
+              {% csrf_token %}
+              <label for="category-select" class="category-label"
+                >Select Category:</label
+              >
+              <div class="select-container">
+                <select
+                  id="category-select"
+                  class="category-dropdown"
+                  name="category"
+                >
+                  {% for category in categories %}
                   <option value="{{ category.id }}">{{ category.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="submit-button">Filter</button>
-    </form>
-  <!-- Budget Overview for Selected Category -->
-  <div class="grid mt-5"> 
-    <!-- Category Budget Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Budget for <span id="selected-category-name"></span></div>
-        <div>₹</div>
-      </div>
-      <div class="card-content">
-        <div class="balance-amount text-green" id="category-budget">₹{{budget_detail.budget_amount}}</div>
-        <div class="change-text">Allocated budget for this category</div>
-      </div>
-    </div>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="submit-button">Filter</button>
+            </form>
+            <!-- Budget Overview for Selected Category -->
+            <div class="grid mt-5">
+              <!-- Category Budget Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    Budget for <span id="selected-category-name"></span>
+                  </div>
+                  <div>₹</div>
+                </div>
+                <div class="card-content">
+                  <div class="balance-amount text-green" id="category-budget">
+                    ₹{{budget_detail.budget_amount}}
+                  </div>
+                  <div class="change-text">
+                    Allocated budget for this category
+                  </div>
+                </div>
+              </div>
 
-    <!-- Spent Amount Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Spent</div>
-        <div>₹</div>
-      </div>
-      <div class="card-content">
-        <div class="balance-amount text-red" id="category-spent">-₹{{budget_detail.expense_since_budget}}</div>
-        <div class="change-text">Expenses in this category</div>
-      </div>
-    </div>
+              <!-- Spent Amount Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Spent</div>
+                  <div>₹</div>
+                </div>
+                <div class="card-content">
+                  <div class="balance-amount text-red" id="category-spent">
+                    -₹{{budget_detail.expense_since_budget}}
+                  </div>
+                  <div class="change-text">Expenses in this category</div>
+                </div>
+              </div>
 
-    <!-- Remaining Budget Card -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Remaining Budget</div>
-        <div>₹</div>
-      </div>
-      <div class="card-content">
-        <div id="category-remaining" class="balance-amount text-green">₹{{budget_detail.remaining}}</div>
-        <div class="change-text" id="remaining-status">You're on track!</div>
-      </div>
-    </div>
-  </div>
-</div>
-
+              <!-- Remaining Budget Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Remaining Budget</div>
+                  <div>₹</div>
+                </div>
+                <div class="card-content">
+                  <div
+                    id="category-remaining"
+                    class="balance-amount text-green"
+                  >
+                    ₹{{budget_detail.remaining}}
+                  </div>
+                  <div class="change-text" id="remaining-status">
+                    You're on track!
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="card">
             <div class="card-content">
               <div class="reports-controls">
-
                 <button type="button" onclick="renderCharts()">
                   Refresh Charts
                 </button>
@@ -439,8 +460,8 @@
                 <option value="category">Expenses by Category</option>
                 <option value="yearly">Yearly Overview</option>
               </select>
-              <button type="button" onclick="generatePDF()">
-                Generate Report
+              <button type="button">
+                <a href="{% url 'generate_financial_report' %}" class="btn">Download Report</a>
               </button>
             </div>
             <div class="chart-placeholder">
@@ -450,52 +471,86 @@
           </div>
         </div>
         <div class="card mb-20">
-  <div class="card-header">
-    <div>
-      <div class="card-title">Upload Receipts</div>
-      <div class="card-description">
-        Upload and manage your payment receipts here.
-      </div>
-    </div>
-  </div>
-  <div class="card-content">
-    <!-- Upload Receipt Form -->
-    <form method="post" action="{% url 'receipt' %}" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="receiptFile">Choose a receipt file (PDF, JPEG, PNG):</label>
-        <input type="file" style="margin-top:10px" id="receiptFile" name="file" accept=".pdf,.jpg,.jpeg,.png" required />
-      </div>
-      <button type="submit" class="submit-button">Upload Receipt</button>
-    </form>
+          <div class="card-header">
+            <div>
+              <div class="card-title">Upload Receipts</div>
+              <div class="card-description">
+                Upload and manage your payment receipts here.
+              </div>
+            </div>
+          </div>
+          <div class="card-content">
+            <!-- Upload Receipt Form -->
+            <form
+              method="post"
+              action="{% url 'receipt' %}"
+              enctype="multipart/form-data"
+            >
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="receiptFile"
+                  >Choose a receipt file (PDF, JPEG, PNG):</label
+                >
+                <input
+                  type="file"
+                  style="margin-top: 10px"
+                  id="receiptFile"
+                  name="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  required
+                />
+              </div>
+              <button type="submit" class="submit-button">
+                Upload Receipt
+              </button>
+            </form>
 
-    <!-- List of Uploaded Receipts -->
-    <div class="receipts-list mt-20">
-      <h3 style="margin-top:15px" >Uploaded Receipts</h3>
-      {% if reciepts %}
-        <ul>
-          {% for receipt in reciepts %}
-            <li class="receipt-item">
-              <div class="receipt-details">
-                <span class="receipt-name">{{ receipt.file.name }}</span>
-                {% comment %} <span class="receipt-date">{{ receipt.uploaded_at|date:"Y-m-d H:i" }}</span> {% endcomment %}
-              </div>
-              <div class="receipt-actions">
-                <a href="{{ receipt.file.url }}" target="_blank" class="view-button">View</a>
-                <form method="post" action="{% url 'receiptdelete' receipt.id %}" style="display: inline;">
-                  {% csrf_token %}
-                  <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this receipt?');">Delete</button>
-                </form>
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p style="margin-top:15px">No receipts uploaded yet.</p>
-      {% endif %}
-    </div>
-  </div>
-</div>
+            <!-- List of Uploaded Receipts -->
+            <div class="receipts-list mt-20">
+              <h3 style="margin-top: 15px">Uploaded Receipts</h3>
+              {% if reciepts %}
+              <ul>
+                {% for receipt in reciepts %}
+                <li class="receipt-item">
+                  <div class="receipt-details">
+                    <span class="receipt-name">{{ receipt.file.name }}</span>
+                    {% comment %}
+                    <span class="receipt-date"
+                      >{{ receipt.uploaded_at|date:"Y-m-d H:i" }}</span
+                    >
+                    {% endcomment %}
+                  </div>
+                  <div class="receipt-actions">
+                    <a
+                      href="{{ receipt.file.url }}"
+                      target="_blank"
+                      class="view-button"
+                      >View</a
+                    >
+                    <form
+                      method="post"
+                      action="{% url 'receiptdelete' receipt.id %}"
+                      style="display: inline"
+                    >
+                      {% csrf_token %}
+                      <button
+                        type="submit"
+                        class="delete-button"
+                        onclick="return confirm('Are you sure you want to delete this receipt?');"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p style="margin-top: 15px">No receipts uploaded yet.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
       </main>
     </div>
     <!-- Receipts Section -->
@@ -506,6 +561,13 @@
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
     >
+    <style>
+    @media print {
+        input, textarea, select, button {
+            display: none !important;
+        }
+    }
+  </style>
       <script>
           <script>
             function generatePDF() {

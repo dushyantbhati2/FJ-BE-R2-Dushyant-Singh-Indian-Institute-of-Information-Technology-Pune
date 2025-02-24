@@ -7,9 +7,4 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/usr/src/app/
-    ports:
-      - 5000:8000
-    environment:
-      - DEBUG=1
-      - ALLOWED_HOSTS=localhost,127.0.0.1
   

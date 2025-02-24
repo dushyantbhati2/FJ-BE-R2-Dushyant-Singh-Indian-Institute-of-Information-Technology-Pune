@@ -2,7 +2,7 @@ from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth import get_user_model
 from django.shortcuts import resolve_url
-from user.models import Profile  # Import your Profile model
+from user.models import Profile
 
 User = get_user_model()
 
