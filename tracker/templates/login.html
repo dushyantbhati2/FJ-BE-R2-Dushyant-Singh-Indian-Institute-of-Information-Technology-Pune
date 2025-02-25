@@ -1,20 +1,58 @@
 {% load socialaccount %}
-{% if messages %}
-    {% for message in messages %}
-        <p style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">
-            {{ message }}
-        </p>
-    {% endfor %}
-{% endif %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceTrack Login</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+           <div class="login-box-1">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Login to continue managing your finances</p>
+           </div>
 
-<form method="post">
-    {% csrf_token %}
-    <label>Username:</label>
-    <input type="text" name="username" required><br>
+            <!-- Django Messages -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <p class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                            {{ message }}
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+            <!-- Login Form -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
 
-    <label>Password:</label>
-    <input type="password" name="password" required><br>
+                <div class="input-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
 
-    <button type="submit">Login</button>
-</form>
-<a href="{% provider_login_url 'google' %}?next={{ request.path }}">Login with Google</a>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+
+            <div class="separator">
+                <span>OR</span>
+            </div>
+
+            <!-- Google Login -->
+            <a href="{% provider_login_url 'google' %}?next={{ request.path }}" class="google-btn">
+                Login with Google
+            </a>
+        </div>
+    </div>
+</body>
+</html>

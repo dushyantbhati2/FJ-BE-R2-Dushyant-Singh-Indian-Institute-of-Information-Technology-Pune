@@ -6,10 +6,10 @@ import os
 load_dotenv()
 resend.api_key = os.getenv('resend')
 
-def send_mail():
+def send_mail(request):
     resend.Emails.send({
     "from": "onboarding@resend.dev",
-    "to": "112215063@cse.iiitp.ac.in",
+    "to": f"112215063@cse.iiitp.ac.in",
     "subject": "Hello World",
     "html": "<p>Congrats on sending your <strong>first email</strong>!</p>"
     })
@@ -27,5 +27,5 @@ def check(request):
                 .aggregate(total=Sum("amount"))["total"] or 0
             )
         if int(budget_amount) - int(total_expense) < 0:
-            send_mail()
+            send_mail(request)
             return

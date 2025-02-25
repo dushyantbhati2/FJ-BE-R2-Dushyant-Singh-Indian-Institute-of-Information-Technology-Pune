@@ -163,22 +163,39 @@
       </form>
     </div>
     <div class="container">
-      <h2>Your Expense Splits</h2>
+      <h2>Money You Owe</h2>
       <table>
         <tr>
-          <th>Expense</th>
-          <th>Amount Owed</th>
-          <th>Status</th>
+          <th>Person</th>
+          <th>Amount</th>
         </tr>
-        {% for split in expense_splits %}
+        {% for person, amount in money_you_owe.items %}
         <tr>
-          <td>{{ split.shared_expense.description }}</td>
-          <td>${{ split.amount }}</td>
-          <td
-            class="{% if split.is_settled %}settled{% else %}unsettled{% endif %}"
-          >
-            {% if split.is_settled %}Settled{% else %}Unsettled{% endif %}
-          </td>
+          <td>{{ person }}</td>
+          <td>${{ amount }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2">You don't owe money to anyone.</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="container">
+      <h2>Money Others Owe You</h2>
+      <table>
+        <tr>
+          <th>Person</th>
+          <th>Amount</th>
+        </tr>
+        {% for person, amount in money_others_owe_you.items %}
+        <tr>
+          <td>{{ person }}</td>
+          <td>${{ amount }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2">No one owes you money.</td>
         </tr>
         {% endfor %}
       </table>

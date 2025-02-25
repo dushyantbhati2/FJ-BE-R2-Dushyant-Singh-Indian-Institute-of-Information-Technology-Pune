@@ -3,22 +3,25 @@ let pie_data = [];
 let bar_labels = [];
 let bar_income_data = [];
 let bar_expense_data=[];
+let lineLabels=[]
+let lineAmount=[]
 async function fetchChartData() {
   try {
-    const [barResponse, pieResponse] = await Promise.all([
-      fetch("https://fj-be-r2-dushyant-singh-indian-institute.onrender.com/bargraph"),
-      fetch("https://fj-be-r2-dushyant-singh-indian-institute.onrender.com/piechart")
+    const [barResponse, pieResponse, lineResponse] = await Promise.all([
+      fetch("/bargraph"),
+      fetch("/piechart"),
+      fetch("/linegraph")
     ]);
 
-    if (!barResponse.ok || !pieResponse.ok) {
-      throw new Error(`HTTP error! Bar Status: ${barResponse.status}, Pie Status: ${pieResponse.status}`);
+    if (!barResponse.ok || !pieResponse.ok || !lineResponse.ok) {
+      throw new Error(`HTTP error! Bar: ${barResponse.status}, Pie: ${pieResponse.status}, Line: ${lineResponse.status}`);
     }
 
-    const [barData, pieData] = await Promise.all([
+    const [barData, pieData, lineData] = await Promise.all([
       barResponse.json(),
-      pieResponse.json()
+      pieResponse.json(),
+      lineResponse.json() // Parsing line graph JSON data
     ]);
-
 
     if (barData && barData.months && barData.income_data && barData.expense_data) {
       bar_labels = barData.months;          
@@ -53,9 +56,12 @@ async function fetchChartData() {
       throw new Error("Invalid JSON response format for pie data");
     }
 
-    console.log("Filtered Months:", bar_labels);
-    console.log("Filtered Income Data:", bar_income_data);
-    console.log("Filtered Expense Data:", bar_expense_data);
+    if (lineData && lineData.labels && lineData.data) {
+      lineLabels = lineData.labels;
+      lineAmount = lineData.data;
+    } else {
+      throw new Error("Invalid JSON response format for line graph data");
+    }
 
     renderCharts();
   } catch (error) {
@@ -90,10 +96,10 @@ function renderCharts() {
     };
   
     const lineData = {
-      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      labels: lineLabels,
       datasets: [{
         label: "Savings",
-        data: [4000, 3000, 5000, 4780, 5890, 6390],
+        data: lineAmount,
         borderColor: "#8884D8",
         fill: false,
         tension: 0.1

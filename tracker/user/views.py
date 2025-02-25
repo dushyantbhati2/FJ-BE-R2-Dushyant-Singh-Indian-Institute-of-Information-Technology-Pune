@@ -23,7 +23,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import get_template
 from .models import Profile, IncomeSource, Transaction, Budget
-from datetime import datetime
+from datetime import datetime,timedelta
 import os
 import tempfile
 import matplotlib
@@ -32,6 +32,8 @@ import matplotlib.pyplot as plt
 from fpdf import FPDF
 from django.http import HttpResponse
 import numpy as np
+from django.utils.timezone import now
+from django.contrib.auth import logout
 class SignUpView(APIView):
     def get(self, request):
         # email.send_mail()
@@ -65,6 +67,12 @@ class LoginView(APIView):
             return redirect("Home")
         messages.error(request, "Invalid Credentials")
         return render(request, "login.html")
+
+class LogoutView(APIView):
+    def get(self, request):
+        logout(request)
+        messages.success(request, "Logged out successfully!")
+        return redirect("login")
 
 class Home(LoginRequiredMixin, APIView):
     login_url = reverse_lazy("login") 
@@ -332,10 +340,45 @@ class SplitExpense(LoginRequiredMixin, APIView):
 
     def get(self, request):
         user = request.user
-        shared_expenses = models.SharedExpense.objects.filter(payer=user)
-        expense_splits = models.ExpenseSplit.objects.filter(shared_expense__in=shared_expenses)
-        users = models.User.objects.all()
-        return render(request, "splitExpense.html", {"expense_splits": expense_splits, "users": users})
+        users=models.User.objects.all()
+        # Fetch money you owe
+        money_owed = models.ExpenseSplit.objects.filter(participant=user, is_settled=False)
+        money_owed_data = {}
+        for expense in money_owed:
+            payer = expense.shared_expense.payer.username
+            money_owed_data[payer] = money_owed_data.get(payer, 0) + float(expense.amount)
+
+        # Fetch money others owe you
+        money_lent = models.ExpenseSplit.objects.filter(shared_expense__payer=user, is_settled=False)
+        money_lent_data = {}
+        for expense in money_lent:
+            participant = expense.participant.username
+            money_lent_data[participant] = money_lent_data.get(participant, 0) + float(expense.amount)
+
+        # Adjust amounts for mutual debts
+        final_money_you_owe = {}
+        final_money_others_owe_you = {}
+
+        all_users = set(money_owed_data.keys()) | set(money_lent_data.keys())
+
+        for person in all_users:
+            amount_you_owe = money_owed_data.get(person, 0)
+            amount_they_owe = money_lent_data.get(person, 0)
+
+            net_amount = amount_you_owe - amount_they_owe  # Calculate the balance
+
+            if net_amount > 0:
+                final_money_you_owe[person] = net_amount  # You still owe them
+            elif net_amount < 0:
+                final_money_others_owe_you[person] = abs(net_amount)  # They owe you
+
+        return render(request, "splitExpense.html", context={
+            "money_you_owe": final_money_you_owe,
+            "money_others_owe_you": final_money_others_owe_you,
+            "users":users
+        })
+
+
 
     def post(self, request):
         serial1 = serializers.SharedExpenseSerializer(data=request.data, context={'request': request})
@@ -370,6 +413,30 @@ class SplitExpense(LoginRequiredMixin, APIView):
                 messages.error(request, e.detail)
         return redirect("splitExpense")
 
+class SavingsView(APIView):
+    def get(self, request):
+        user = request.user
+        today = now().date()
+        months = [(today - timedelta(days=30 * i)).strftime("%b") for i in range(5, -1, -1)]
+        savings_data = []
+        user_profile = models.Profile.objects.filter(user=user).first()
+        balance = user_profile.balance if user_profile else 0
+        for i in range(5, -1, -1):
+            start_date = today - timedelta(days=30 * (i + 1))
+            end_date = today - timedelta(days=30 * i)
+
+            income = models.IncomeSource.objects.filter(
+                user=user, date__range=[start_date, end_date]
+            ).aggregate(total_income=Sum("amount"))["total_income"] or 0
+
+            expenses = models.Transaction.objects.filter(
+                user=user, date__range=[start_date, end_date]
+            ).aggregate(total_expense=Sum("amount"))["total_expense"] or 0
+
+            savings = balance + income - expenses
+            savings_data.append(savings)
+
+        return Response({"labels": months, "data": savings_data})
 
 class PDF(FPDF):
     def header(self):

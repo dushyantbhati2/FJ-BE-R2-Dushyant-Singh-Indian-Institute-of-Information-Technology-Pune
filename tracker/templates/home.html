@@ -15,9 +15,8 @@
         <div class="sidebar-title">FinTrack</div>
         <nav>
           <a href="#" class="active">Dashboard</a>
-          <a href="#">Transactions</a>
-          <a href="#">Reports</a>
-          <a href="#">Settings</a>
+          <a href="{% url 'splitExpense' %}">Split Expense</a>
+          <a href="{% url 'logout' %}">LogOut</a>
         </nav>
       </aside>
 
@@ -114,6 +113,7 @@
 
                 <!-- Tab Content: Recent Incomes -->
                 <div class="tab-content recent">
+                  {% if incomes %}
                   {% for i in incomes %}
                   <div class="transaction-item">
                     <div>
@@ -138,13 +138,9 @@
                     </div>
                   </div>
                   {% endfor %}
-                  <div class="transaction-item">
-                    <div>
-                      <div class="details">Groceries</div>
-                      <div class="date">2023-06-05</div>
-                    </div>
-                    <div class="amount expense">-$150.00</div>
-                  </div>
+                  {% else %}
+                    <p>No Incomes</p>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -230,7 +226,7 @@
                     <div>
                       <div class="details">{{ i.category }}</div>
                       <div class="date">{{ i.date }}</div>
-                      <div class="description">{{ i.description }}</div>
+                      <div class="date">{{ i.description }}</div>
                     </div>
                     <div class="amount income">
                       {{ i.amount }}
@@ -454,19 +450,9 @@
           </div>
           <div class="card-content">
             <div class="reports-controls">
-              <select>
-                <option value="" disabled selected>Report Type</option>
-                <option value="monthly">Monthly Income vs Expenses</option>
-                <option value="category">Expenses by Category</option>
-                <option value="yearly">Yearly Overview</option>
-              </select>
               <button type="button">
                 <a href="{% url 'generate_financial_report' %}" class="btn">Download Report</a>
               </button>
-            </div>
-            <div class="chart-placeholder">
-              <!-- Placeholder for additional report details if needed -->
-              Sample Expense Distribution
             </div>
           </div>
         </div>

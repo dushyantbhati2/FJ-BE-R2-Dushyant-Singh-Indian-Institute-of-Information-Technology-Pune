@@ -1,0 +1,185 @@
+/* General Styling */
+body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin-left: -60px
+}
+
+/* Container */
+.register-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+/* Registration Box */
+.register-box {
+    background: white;
+    padding: 40px 40px 40px 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    width: 105%;
+}
+
+/* Titles */
+h2 {
+    font-size: 26px;
+    color: #1e3c72;
+    margin-bottom: -9px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+/* Django Messages */
+.messages {
+    margin: 15px 0;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.error {
+    color: red;
+    background: #ffebee;
+}
+
+.success {
+    color: green;
+    background: #e8f5e9;
+}
+
+/* Form */
+.input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+input:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
+}
+
+/* Register Button */
+.register-btn {
+    width: 108%;
+    background: #2563eb;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.register-btn:hover {
+    background: #1d4ed8;
+}
+
+/* Separator */
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 25px 0;
+    font-size: 14px;
+    color: #64748b;
+    position: relative;
+}
+
+.separator::before,
+.separator::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+.separator span {
+    padding: 0 10px;
+    background: white;
+}
+
+/* Google Button */
+.google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: #374151;
+    border: 2px solid #cbd5e1;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.google-btn:hover {
+    background: #f9fafb;
+}
+
+.google-btn img {
+    width: 20px;
+    margin-right: 10px;
+}
+
+/* Login Link */
+.login-link {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.login-link a {
+    color: #2563eb;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .register-box {
+        padding: 30px;
+    }
+}
