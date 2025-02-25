@@ -6,12 +6,12 @@ import os
 load_dotenv()
 resend.api_key = os.getenv('resend')
 
-def send_mail(request):
+def send_mail(request,i,x):
     resend.Emails.send({
-    "from": "onboarding@resend.dev",
-    "to": f"112215063@cse.iiitp.ac.in",
-    "subject": "Hello World",
-    "html": "<p>Congrats on sending your <strong>first email</strong>!</p>"
+    "from": "no-reply@test.shubhamasati.tech",
+    "to": f"{request.user.email}",
+    "subject": "Budget Overflow",
+    "html": f"Your Budget is overflowed of category {i} by {x}"
     })
 def check(request):
     cat_list=models.Category.objects.filter(user=request.user)
@@ -27,5 +27,6 @@ def check(request):
                 .aggregate(total=Sum("amount"))["total"] or 0
             )
         if int(budget_amount) - int(total_expense) < 0:
-            send_mail(request)
+            x=int(budget_amount) - int(total_expense)
+            send_mail(request,i,x)
             return
